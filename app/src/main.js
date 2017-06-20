@@ -9,7 +9,7 @@ import createMainWindow from './components/mainWindow/mainWindow';
 import helpers from './helpers/helpers';
 import inferFlash from './helpers/inferFlash';
 
-const { isOSX } = helpers;
+const { isOSX, isWindows } = helpers;
 
 electronDownload();
 
@@ -86,6 +86,13 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
 if (appArgs.singleInstance) {
   const shouldQuit = app.makeSingleInstance(() => {
     // Someone tried to run a second instance, we should focus our window.
+
+    if (isWindows()) {
+      // Keep only command line / deep linked arguments
+      deeplinkingUrl = argv.slice(1)
+      app.emit('deeplink-url-change-intent', deeplinkingUrl);
+    }
+
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
         mainWindow.restore();
